@@ -64,8 +64,8 @@ body {
 .search-wrapper {
   display: flex;
   width: 100%;
-  border: 2px solid #333;
-  border-radius: 30px;
+  border: 1px solid #242424;
+  border-radius: 0;
   background-color: #1a1a1a;
   overflow: hidden;
 }
@@ -103,13 +103,13 @@ body {
 /* Dropdown styling */
 .dropdown {
   position: absolute;
-  top: calc(100% + 5px);
+  top: calc(100% + 0px);
   left: 0;
   width: 100%;
   background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  border: 1px solid #242424;
+  border-radius: 0;
+  box-shadow: none;
   z-index: 100;
   display: none;
   overflow: hidden;
