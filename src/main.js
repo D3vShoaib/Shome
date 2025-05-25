@@ -15,7 +15,6 @@ app.innerHTML = `
     <div class="box-mid">
       <div class="search-container">
         <div class="search-wrapper">
-          <div class="selected-website" id="selected-website"></div>
           <input
             class="search-input"
             type="text"
@@ -63,6 +62,14 @@ const selectedWebsite = document.getElementById("selected-website");
 // Current state
 let selectedBang = null;
 let currentQuery = "";
+let emptyBackspaceCount = 0;
+
+// Default Google search bang
+const defaultGoogleBang = {
+  s: "Google",
+  t: "google",
+  u: "https://www.google.com/search?q={{{s}}}",
+};
 
 // Filter bangs based on input
 function filterBangs(query) {
@@ -85,7 +92,12 @@ async function fetchGoogleSuggestions(query) {
   try {
     // Using AllOrigins CORS proxy
     const corsProxy = "https://api.allorigins.win/raw?url=";
-    const googleSuggestUrl = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(
+
+    // Use standard Google suggest API parameters
+    // - client=chrome: Chrome client for better suggestions format
+    // - hl=en: Language hint (change as needed)
+    // - gl=us: Geolocation hint (change as needed)
+    const googleSuggestUrl = `https://suggestqueries.google.com/complete/search?client=chrome&hl=en&gl=us&q=${encodeURIComponent(
       query
     )}`;
 
@@ -128,16 +140,18 @@ function createFallbackSuggestions(query) {
 
 // Update UI with bangs and suggestions
 async function updateSearchResults() {
-  const query = searchInput.value.trim();
-  currentQuery = query;
+  const fullValue = searchInput.value.trim();
+  let query = fullValue;
 
-  if (!query) {
+  if (!fullValue) {
     searchDropdown.style.display = "none";
     return;
   }
 
-  // If a bang is already selected, only show suggestions
+  // If a bang is already selected, only show suggestions for the query part
   if (selectedBang) {
+    const parts = fullValue.split(" | ");
+    query = parts.length > 1 ? parts[1].trim() : "";
     bangsContainer.style.display = "none";
     const suggestions = await fetchGoogleSuggestions(query);
     renderSuggestions(suggestions);
@@ -223,11 +237,14 @@ function renderSuggestions(suggestions) {
   // Add click event listeners to suggestion items
   document.querySelectorAll(".suggestion-item").forEach((item) => {
     item.addEventListener("click", () => {
-      searchInput.value = item.textContent.trim();
-      searchDropdown.style.display = "none";
+      const suggestionText = item.textContent.trim();
       if (selectedBang) {
-        performSearch();
+        searchInput.value = `${selectedBang.s} | ${suggestionText}`;
+      } else {
+        searchInput.value = suggestionText;
       }
+      searchDropdown.style.display = "none";
+      performSearch();
     });
   });
 }
@@ -235,26 +252,39 @@ function renderSuggestions(suggestions) {
 // Select a bang
 function selectBang(bangKey) {
   selectedBang = bangs.find((bang) => bang.t === bangKey);
-  searchInput.placeholder = `Search ${selectedBang.s}...`;
-  selectedWebsite.textContent = selectedBang.s;
-  selectedWebsite.style.display = "flex";
-  searchInput.value = "";
+  searchInput.placeholder = "Type to search...";
+  searchInput.value = `${selectedBang.s} | `;
   searchInput.focus();
   searchDropdown.style.display = "none";
+  // Place cursor after the separator
+  const cursorPosition = searchInput.value.length;
+  searchInput.setSelectionRange(cursorPosition, cursorPosition);
 }
 
 // Perform the search
 function performSearch() {
   if (!searchInput.value.trim()) return;
-
+  let searchTerm;
   if (selectedBang) {
-    const searchTerm = encodeURIComponent(searchInput.value.trim());
-    const url = selectedBang.u.replace("{{{s}}}", searchTerm);
+    // Extract query part after the separator
+    const parts = searchInput.value.split(" | ");
+    searchTerm = parts.length > 1 ? parts[1].trim() : "";
+    if (!searchTerm) return;
+
+    // Use selected bang
+    const url = selectedBang.u.replace(
+      "{{{s}}}",
+      encodeURIComponent(searchTerm)
+    );
     window.location.href = url;
   } else {
-    // Default to Google search if no bang selected
-    const searchTerm = encodeURIComponent(searchInput.value.trim());
-    window.location.href = `https://www.google.com/search?q=${searchTerm}`;
+    // Use default Google search
+    searchTerm = searchInput.value.trim();
+    const url = defaultGoogleBang.u.replace(
+      "{{{s}}}",
+      encodeURIComponent(searchTerm)
+    );
+    window.location.href = url;
   }
 }
 
@@ -262,8 +292,6 @@ function performSearch() {
 function resetSearch() {
   selectedBang = null;
   searchInput.placeholder = "Search with !bangs...";
-  selectedWebsite.textContent = "";
-  selectedWebsite.style.display = "none";
   searchInput.value = "";
   searchDropdown.style.display = "none";
 }
@@ -279,6 +307,20 @@ searchInput.addEventListener("keydown", (e) => {
       resetSearch();
     } else {
       searchDropdown.style.display = "none";
+    }
+  } else if (e.key === "Backspace" && selectedBang) {
+    const parts = searchInput.value.split(" | ");
+    const query = parts.length > 1 ? parts[1].trim() : "";
+    if (!query) {
+      emptyBackspaceCount++;
+      if (emptyBackspaceCount === 2) {
+        // Second backspace with no query - reset the search
+        e.preventDefault();
+        resetSearch();
+        emptyBackspaceCount = 0;
+      }
+    } else {
+      emptyBackspaceCount = 0;
     }
   }
 });
