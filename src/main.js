@@ -83,18 +83,47 @@ async function fetchGoogleSuggestions(query) {
   if (!query) return [];
 
   try {
-    const response = await fetch(
-      `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(
-        query
-      )}`,
-      { mode: "cors" }
-    );
-    const data = await response.json();
-    return getSortedSuggestions(data);
+    // Using AllOrigins CORS proxy
+    const corsProxy = "https://api.allorigins.win/raw?url=";
+    const googleSuggestUrl = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(
+      query
+    )}`;
+
+    try {
+      const response = await fetch(
+        `${corsProxy}${encodeURIComponent(googleSuggestUrl)}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        return getSortedSuggestions(data);
+      }
+    } catch (proxyError) {
+      console.warn(`AllOrigins proxy failed:`, proxyError);
+      // Fall through to the fallback
+    }
+
+    // If proxy fails, return fallback suggestions based on the query
+    console.warn("AllOrigins proxy failed, using fallback suggestions");
+    return createFallbackSuggestions(query);
   } catch (error) {
     console.error("Error fetching suggestions:", error);
     return [];
   }
+}
+
+// Create fallback suggestions when proxies fail
+function createFallbackSuggestions(query) {
+  // Simple fallback that creates variations of the query
+  const suggestions = [
+    { text: query, relevance: 100 },
+    { text: query + " tutorial", relevance: 90 },
+    { text: query + " examples", relevance: 80 },
+    { text: query + " meaning", relevance: 70 },
+    { text: "how to " + query, relevance: 60 },
+  ];
+
+  return suggestions;
 }
 
 // Update UI with bangs and suggestions
@@ -124,6 +153,7 @@ async function updateSearchResults() {
   const filteredBangs = filterBangs(query);
   const suggestions = await fetchGoogleSuggestions(query);
 
+  // Always render bangs first, then suggestions below
   renderBangs(filteredBangs);
   renderSuggestions(suggestions);
 
