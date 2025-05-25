@@ -2,6 +2,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #090909;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .shome-container {
@@ -49,25 +50,180 @@ body {
 
 @media (max-width: 768px) {
   .title-svg {
+    width: 40vw; /* Larger width for mobile screens */
+  }
+}
+
+/* Search container and input styling */
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.search-wrapper {
+  display: flex;
+  width: 100%;
+  border: 2px solid #333;
+  border-radius: 30px;
+  background-color: #1a1a1a;
+  overflow: hidden;
+}
+
+.selected-website {
+  display: none;
+  align-items: center;
+  padding: 0 15px;
+  color: #ffffff;
+  font-weight: bold;
+  background-color: #2a2a2a;
+  white-space: nowrap;
+  border-right: 1px solid #444;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: none;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: #555;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Dropdown styling */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  width: 100%;
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: none;
+  overflow: hidden;
+}
+
+.dropdown-section-title {
+  padding: 8px 15px;
+  font-size: 12px;
+  color: #999;
+  background-color: #161616;
+  border-bottom: 1px solid #333;
+}
+
+/* Bangs section styling */
+.bangs-container {
+  border-bottom: 1px solid #333;
+}
+
+.bangs-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.bang-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.bang-item:hover {
+  background-color: #252525;
+}
+
+.bang-name {
+  font-weight: bold;
+  color: #fff;
+}
+
+.bang-domain {
+  color: #999;
+  font-size: 12px;
+}
+
+/* Suggestions section styling */
+.suggestions-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #fff;
+}
+
+.suggestion-item:hover {
+  background-color: #252525;
+}
+
+/* PWA Toast styling */
+.pwa-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  width: 90%;
+  max-width: 400px;
+}
+
+.pwa-toast-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.pwa-toast-content {
+  margin-bottom: 10px;
+}
+
+.pwa-toast-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pwa-toast-actions button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #333;
+  color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+.pwa-toast-actions button:hover {
+  background-color: #444;
+}
     width: 60vw; /* Adjust width for smaller screens (e.g., mobile) */
   }
 }
 
 .title-svg:hover {
   cursor: pointer; /* Change cursor to pointer on hover */
-}
-
-.search-input {
-  justify-self: center;
-  width: 100%;
-  height: 5vh;
-  padding: 10px;
-  font-size: 1.5em;
-  background-color: #161616;
-  border: none;
-  border-radius: 0px;
-  color: #ffffff;
-  box-sizing: border-box; /* Ensures padding is included in the width */
 }
 
 .search-input::placeholder {
@@ -83,8 +239,7 @@ body {
 }
 
 .search-input:focus {
-  outline: none; /* Remove default outline */
-  border-radius: 0px;
+  outline: none;
 }
 
 /* PWA Toast Styles */
