@@ -1,45 +1,8 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import appLogo from '/favicon.svg'
-import { setupCounter } from './counter.js'
-import { initPWA } from './pwa.js'
+import "./style.css";
+import { initPWA } from "./pwa.js";
 
-const app = document.querySelector('#app')
+const app = document.querySelector("#app");
 app.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${appLogo}" class="logo" alt="Shome logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Shome</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-  <div
-    id="pwa-toast"
-    role="alert"
-    aria-labelledby="toast-message"
-  >
-    <div class="message">
-      <span id="toast-message"></span>
-    </div>
-    <div class="buttons">
-      <button id="pwa-refresh" type="button">
-        Reload
-      </button>
-      <button id="pwa-close" type="button">
-        Close
-      </button>
-    </div>
-  </div>
-`
-
-setupCounter(document.querySelector('#counter'))
-
-initPWA(app)
+  <div></div>
+`;
+initPWA(app);
